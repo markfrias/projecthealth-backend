@@ -4,6 +4,9 @@ const mysql = require('mysql');
 
 const app = express();
 
+// Sample variable
+//let sample = [];
+
 app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
 
 const connection = mysql.createConnection({
@@ -30,7 +33,14 @@ connection.query('SELECT * FROM Users', (err, results, fields) => {
         console.log(err);
     }
 
-    console.log(results);
+    let usersObject = results.map((mysqlObject, index) => {
+        return Object.assign({}, mysqlObject);
+    });
+
+    sample = usersObject;
+
+    console.log(usersObject);
+
 })
 */
 
