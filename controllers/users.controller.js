@@ -1,4 +1,5 @@
 const { connection } = require('../dbConfig');
+const { authenticate } = require('../authentication');
 const bcrypt = require('bcrypt');
 
 // Get users from DB and send to client
@@ -25,7 +26,7 @@ const getUsers = (req, res) => {
 };
 
 // Creates a new user
-const registerUser = (req, res) => {
+const registerUser = async (req, res) => {
 
     try {
 
@@ -49,20 +50,21 @@ const registerUser = (req, res) => {
                 res.json({ message: "Error" })
             }
 
-            // Store hashed password in a variable
+            // Store hashed password in DB
             password = hash;
+
+            // Perform INSERT query to database
+            connection.query('INSERT INTO Users (username, firstname, lastname, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, firstName, lastName, sex, emailAddress, password, activityLevel, calorieBudget, dateOfBirth, weight, height], (error, results, fields) => {
+                if (error) {
+                    console.log(error)
+                    // Assign appropriate status code here
+                    res.send({ message: "Error" })
+                }
+                res.send(results);
+            })
         });
 
-        // Perform INSERT query to database
-        connection.query('INSERT INTO Users (username, firstname, lastname, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, firstName, lastName, sex, emailAddress, password, activityLevel, calorieBudget, dateOfBirth, weight, height], (error, results, fields) => {
-            if (error) {
-                console.log(error)
-                // Assign appropriate status code here
-                res.send({ message: "Error" })
-            }
 
-            res.send(results);
-        })
     } catch (error) {
         console.log(error)
         res.status(500);
@@ -72,6 +74,13 @@ const registerUser = (req, res) => {
 
 }
 
+const loginUser = (req, res) => {
+
+    // Authenticate user
+    authenticate(req.body, res)
+
+}
+
 module.exports = {
-    getUsers, registerUser
+    getUsers, registerUser, loginUser
 }
