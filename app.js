@@ -1,18 +1,18 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
 const mysql = require('mysql');
+const { connection } = require('./dbConfig');
+const usersRouter = require('./routes/users.route');
 
 const app = express();
 
-app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }));
 
-const connection = mysql.createConnection({
-    /* Use environment variables here before pushing to remote repo */
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
-});
+// Sample variable  
+//let sample = [];
+
+app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
 
 // Establish connection with database
 connection.connect((err) => {
@@ -30,9 +30,19 @@ connection.query('SELECT * FROM Users', (err, results, fields) => {
         console.log(err);
     }
 
-    console.log(results);
+    let usersObject = results.map((mysqlObject, index) => {
+        return Object.assign({}, mysqlObject);
+    });
+
+    sample = usersObject;
+
+    console.log(usersObject);
+
 })
 */
+
+// Routes
+app.use('/api/users', usersRouter);
 
 
 
