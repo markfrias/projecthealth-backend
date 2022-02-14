@@ -1,5 +1,5 @@
 const dotenv = require('dotenv').config();
-const { connection } = require('./dbConfig');
+const { connection } = require('../dbConfig');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -10,7 +10,7 @@ function authenticate(body, res, token) {
     connection.query("SELECT * FROM Users WHERE emailAddress=?;", [body.emailAddress], (error, results, fields) => {
         if (error) {
             res.status(500);
-            return res.json({ message: "Error" })
+            return res.json({ message: "Server error" })
         }
 
         // Return an error message when user is not found
@@ -23,8 +23,8 @@ function authenticate(body, res, token) {
         bcrypt.compare(body.passcode, results[0].passcode, (err, result) => {
             if (err) {
                 console.log(err);
-                res.status(401);
-                res.send({ message: "Email or password mismatch" })
+                res.status(500);
+                res.send({ message: "Server error" })
             }
 
             if (result === false) {

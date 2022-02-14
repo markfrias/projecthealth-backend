@@ -1,5 +1,5 @@
 const { connection } = require('../dbConfig');
-const { authenticate } = require('../authentication');
+const { authenticate } = require('../auth/authentication');
 const bcrypt = require('bcrypt');
 
 // Get users from DB and send to client
