@@ -119,7 +119,6 @@ const registerUser = async (req, res) => {
 }
 
 const loginUser = (req, res) => {
-
     // Authenticate user
     authenticate(req.body, res)
 

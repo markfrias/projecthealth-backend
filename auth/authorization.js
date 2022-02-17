@@ -28,14 +28,14 @@ const authorize = function (req, res, next) {
     jwt.verify(jwtoken, process.env.JWT_SECRET, (err, decoded) => {
         if (err) return res.status(500).send("Server error");
 
-
+        console.log(decoded)
         // Search DB if user exists
         connection.query("SELECT * FROM Users WHERE emailAddress=?;", [req.body.emailAddress], (error, results, fields) => {
             if (error) {
                 res.status(500);
                 return res.json({ message: "Server error" });
             }
-
+            console.log(results)
             req.user = results;
             next();
         });
