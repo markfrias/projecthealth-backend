@@ -30,13 +30,18 @@ const authorize = function (req, res, next) {
 
 
         // Search DB if user exists
-        connection.query("SELECT * FROM Users WHERE emailAddress=?;", [req.body.emailAddress], (error, results, fields) => {
+        connection.query("SELECT * FROM Users WHERE emailAddress=?;", [decoded.email], (error, results, fields) => {
             if (error) {
                 res.status(500);
                 return res.json({ message: "Server error" });
             }
+            if (results.length === 0 || results.length > 1) {
+                res.status(401);
+                return res.json({ message: "Unauthorized" });
+            }
+            req.body.email = results[0].emailAddress;
+            req.body.userId = results[0].userId;
 
-            req.user = results;
             next();
         });
     });

@@ -33,7 +33,8 @@ function authenticate(body, res, token) {
             }
 
             // Generate access token
-            let token = jwt.sign({ iss: "https://projecthealthapp.herokuapp.com/", aud: "https://projecthealth-frontend.vercel.app/" }, process.env.JWT_SECRET, { expiresIn: 900000 });
+            let token = jwt.sign({ iss: "https://projecthealthapp.herokuapp.com/", aud: "https://projecthealth-frontend.vercel.app/", email: body.emailAddress }, process.env.JWT_SECRET, { expiresIn: 900000 });
+            console.log(token)
             res.json({ jwt: "Bearer " + token, status: "Success", /*emailAddress: body.emailAddress*/ });
 
         })
