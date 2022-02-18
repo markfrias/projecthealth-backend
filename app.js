@@ -22,18 +22,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }));
 
 
-var registrationToken = "e1I_kfxMtlXIBOYlc1Cvzu:APA91bFNhBuI-44i4Qlu5iA-OGnW4ssfI9GBjxuGx3F2iYArCwutMBVds79ss4SDKB3qqnFKmf3k43l17VZbApSk9ejvDK2vpXTn8VUJQVja2XI-IZ8Gv6M1vBJaYwiZ1n0hAMniwZ94";
-var payload = {
-    notification: {
-        title: "Test Notification",
-        body: "This is the body of the notification message."
-    }
-};
 
-var options = {
-    priority: "high",
-    timeToLive: 60 * 60 * 24
-};
 
 /*
 admin.messaging().sendToDevice(registrationToken, payload, options)
