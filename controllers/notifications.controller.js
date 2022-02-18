@@ -42,24 +42,28 @@ const subscribeToReminders = async (req, res) => {
                                 console.log('Successfully subscribed to topic:', response);
 
 
-                                admin.messaging().subscribeToTopic(registrationToken, lunchTime)
-                                    .then((response) => {
 
-                                        console.log('Successfully subscribed to topic:', response);
-                                        admin.messaging().subscribeToTopic(registrationToken, dinnerTime)
-                                            .then((response) => {
 
-                                                console.log('Successfully subscribed to topic:', response);
-                                                res.json(results);
-                                            })
-                                            .catch((error) => {
-                                                console.log('Error subscribing to topic:', error);
-                                            });
-                                    })
-                                    .catch((error) => {
-                                        console.log('Error subscribing to topic:', error);
-                                    });
+                            })
+                            .catch((error) => {
+                                console.log('Error subscribing to topic:', error);
+                            });
 
+                        admin.messaging().subscribeToTopic(registrationToken, lunchTime)
+                            .then((response) => {
+
+                                console.log('Successfully subscribed to topic:', response);
+
+                            })
+                            .catch((error) => {
+                                console.log('Error subscribing to topic:', error);
+                            });
+
+                        admin.messaging().subscribeToTopic(registrationToken, dinnerTime)
+                            .then((response) => {
+
+                                console.log('Successfully subscribed to topic:', response);
+                                res.json(results);
                             })
                             .catch((error) => {
                                 console.log('Error subscribing to topic:', error);
