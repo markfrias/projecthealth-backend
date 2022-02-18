@@ -91,32 +91,35 @@ const subscribeToReminders = async (req, res) => {
 
                                 console.log('Successfully subscribed to topic:', response);
 
+                            })
+                            .catch((error) => {
+                                console.log('Error subscribing to topic:', error);
+                            });
 
-                                admin.messaging().subscribeToTopic(registrationToken, lunchTime)
-                                    .then((response) => {
+                        admin.messaging().subscribeToTopic(registrationToken, lunchTime)
+                            .then((response) => {
 
-                                        console.log('Successfully subscribed to topic:', response);
-                                        admin.messaging().subscribeToTopic(registrationToken, dinnerTime)
-                                            .then((response) => {
-
-                                                console.log('Successfully subscribed to topic:', response);
-                                                res.json(results);
-
-                                                // Unsubscribe to old topics
-                                                unsubscribe(prevTopics);
-                                            })
-                                            .catch((error) => {
-                                                console.log('Error subscribing to topic:', error);
-                                            });
-                                    })
-                                    .catch((error) => {
-                                        console.log('Error subscribing to topic:', error);
-                                    });
+                                console.log('Successfully subscribed to topic:', response);
 
                             })
                             .catch((error) => {
                                 console.log('Error subscribing to topic:', error);
                             });
+
+                        admin.messaging().subscribeToTopic(registrationToken, dinnerTime)
+                            .then((response) => {
+
+                                console.log('Successfully subscribed to topic:', response);
+                                res.json(results);
+
+
+                            })
+                            .catch((error) => {
+                                console.log('Error subscribing to topic:', error);
+                            });
+
+                        // Unsubscribe to old topics
+                        unsubscribe(prevTopics);
                     } catch (error) {
                         res.status(500);
                         return res.json({ message: "Internal server error or missing input" });
@@ -172,41 +175,47 @@ const subscribeToReminders = async (req, res) => {
 
 
     const unsubscribe = (previousTopics) => {
-        console.log(previousTopics);
-        const newTopics = [breakfastTime, lunchTime, dinnerTime];
-        console.log(newTopics)
-        // Find topics to unsubscribe (return unmatched topic in the old list)
-        const topicsToUnsub = previousTopics.filter((topic) => {
-            let isMatch = false;
-            for (let i = 0; i < newTopics.length; i++) {
-                if (topic.includes(newTopics[i])) {
-                    isMatch = true;
+        try {
+            console.log(previousTopics);
+            const newTopics = [breakfastTime, lunchTime, dinnerTime];
+            console.log(newTopics)
+            // Find topics to unsubscribe (return unmatched topic in the old list)
+            const topicsToUnsub = previousTopics.filter((topic) => {
+                let isMatch = false;
+                for (let i = 0; i < newTopics.length; i++) {
+                    if (topic.includes(newTopics[i])) {
+                        isMatch = true;
+
+                    }
+
 
                 }
+                if (isMatch) {
+                    return false;
+                } else {
+                    return true;
+                }
+            })
 
+            // Unsub from topic/s
+            topicsToUnsub.forEach((data) => {
+                // Unsubscribe the devices corresponding to the registration tokens from
+                // the topic.
+                admin.messaging().unsubscribeFromTopic(registrationToken, data)
+                    .then((response) => {
+                        // See the MessagingTopicManagementResponse reference documentation
+                        // for the contents of response.
+                        console.log('Successfully unsubscribed from topic:', response);
+                    })
+                    .catch((error) => {
+                        console.log('Error unsubscribing from topic:', error);
+                    });
+            })
+        } catch (error) {
+            res.status(500);
+            res.json({ message: "Internal server error" });
+        }
 
-            }
-            if (isMatch) {
-                return false;
-            } else {
-                return true;
-            }
-        })
-
-        // Unsub from topic/s
-        topicsToUnsub.forEach((data) => {
-            // Unsubscribe the devices corresponding to the registration tokens from
-            // the topic.
-            admin.messaging().unsubscribeFromTopic(registrationToken, data)
-                .then((response) => {
-                    // See the MessagingTopicManagementResponse reference documentation
-                    // for the contents of response.
-                    console.log('Successfully unsubscribed from topic:', response);
-                })
-                .catch((error) => {
-                    console.log('Error unsubscribing from topic:', error);
-                });
-        })
     }
 }
 
