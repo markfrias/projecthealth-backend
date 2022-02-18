@@ -9,9 +9,12 @@ const notificationsRouter = require('./routes/notifications.route');
 const cron = require('node-cron');
 const { admin } = require('./firebase');
 const { startMessageService } = require('./messaging');
+const rateLimit = require('express-rate-limit')
+
 
 // Initialize express
 const app = express();
+
 
 // Middleware
 app.use(cors());
@@ -98,6 +101,21 @@ connection.query('SELECT * FROM Users', (err, results, fields) => {
 
 })
 */
+
+
+
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
+// Apply the rate limiting middleware to all requests
+app.use('/api', limiter)
+
+
 
 // Routes
 app.use('/api/users', usersRouter);
