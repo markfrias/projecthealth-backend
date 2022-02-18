@@ -41,28 +41,72 @@ const registerUser = async (req, res) => {
             res.json({ message: "Error", error: "Missing field" })
         }
 
-        // Hash password
-        bcrypt.hash(passcode, 10, function (err, hash) {
-
-            // Error handling
-            if (err) {
+        // Check if email address is already used in an existing account
+        connection.query("SELECT * FROM Users WHERE emailAddress=?;", [req.body.emailAddress], (error, results, fields) => {
+            if (error) {
                 res.status(500);
-                res.json({ message: "Error" })
+                return res.json({ message: "Server error" })
             }
 
-            // Store hashed password in DB
-            password = hash;
+            // Return an error message when user is not found
+            if (results.length > 0) {
+                res.status(409);
+                res.json({ message: "Email address is already linked to an existing account", type: "Error" })
+                return;
+            }
 
-            // Perform INSERT query to database
-            connection.query('INSERT INTO Users (username, firstname, lastname, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, firstName, lastName, sex, emailAddress, password, activityLevel, calorieBudget, dateOfBirth, weight, height], (error, results, fields) => {
-                if (error) {
-                    console.log(error)
-                    // Assign appropriate status code here
-                    res.send({ message: "Error" })
+            // Hash password
+            bcrypt.hash(passcode, 10, function (err, hash) {
+
+                // Error handling
+                if (err) {
+                    res.status(500);
+                    res.json({ message: "Error" })
                 }
-                res.send(results);
+
+                // Store hashed password in DB
+                password = hash;
+
+                // Perform INSERT query to database
+                connection.query('INSERT INTO Users (username, firstname, lastname, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, firstName, lastName, sex, emailAddress, password, activityLevel, calorieBudget, dateOfBirth, weight, height], (error, results, fields) => {
+                    if (error) {
+                        console.log(error)
+                        // Assign appropriate status code here
+                        res.send({ message: "Error" })
+                    }
+                    res.send(results);
+                })
+            });
+
+
+        })
+        /*
+        if () {
+            res.status(409);
+            res.json({ message: "Email address is already linked to an existing account", type: "Error" })
+            return;
+        }*/
+
+        /*
+        // Check if email address is already used in an existing account
+            connection.query("SELECT * FROM Users WHERE emailAddress=?;", [req.body.emailAddress], (error, results, fields) => {
+                if (error) {
+                    res.status(500);
+                    return res.json({ message: "Server error" })
+                }
+ 
+                // Return an error message when user is not found
+                if (results.length > 0) {
+                    res.status(409);
+                    res.json({ message: "Email address is already linked to an existing account", type: "Error" })
+                    return;
+                }
             })
-        });
+            */
+
+
+
+
 
 
     } catch (error) {
@@ -75,7 +119,6 @@ const registerUser = async (req, res) => {
 }
 
 const loginUser = (req, res) => {
-
     // Authenticate user
     authenticate(req.body, res)
 
