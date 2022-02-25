@@ -18,6 +18,7 @@ const authorize = function (req, res, next) {
 
         }
     } catch (err) {
+        console.log(err)
         req.user = null;
         return res.status(500).send("Server error");
     }
@@ -26,12 +27,16 @@ const authorize = function (req, res, next) {
     let jwtoken = req.headers.authorization.slice(7);
 
     jwt.verify(jwtoken, process.env.JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(500).send("Server error");
+        if (err) {
+            console.log(err);
+            return res.status(500).send("Server error");
 
+        }
 
         // Search DB if user exists
         connection.query("SELECT * FROM Users WHERE emailAddress=?;", [decoded.email], (error, results, fields) => {
             if (error) {
+                console.log(error)
                 res.status(500);
                 return res.json({ message: "Server error" });
             }
