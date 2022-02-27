@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.post("/create", authorize, habitController.createHabit);
 router.get('/autocomplete', authorize, habitController.autocompleteHabits);
+router.get('/results', authorize, habitController.getSearchedHabits);
+router.get('/all', authorize, habitController.getAllHabits);
 
 
 module.exports = router;
