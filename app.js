@@ -7,6 +7,7 @@ const { connection } = require('./dbConfig');
 const usersRouter = require('./routes/users.route');
 const notificationsRouter = require('./routes/notifications.route');
 const foodRouter = require('./routes/food.route');
+const habitRouter = require('./routes/habit.route');
 const cron = require('node-cron');
 const { admin } = require('./firebase');
 const { startMessageService } = require('./messaging');
@@ -111,6 +112,7 @@ app.use('/api', limiter)
 app.use('/api/users', usersRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/food', foodRouter);
+app.use('/api/habit', habitRouter);
 
 
 
