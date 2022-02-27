@@ -125,7 +125,73 @@ const getAllHabits = (req, res) => {
 }
 
 
+// Save habits for a specific user
+const saveHabit = (req, res) => {
+
+    // Assign request body to variables
+    const userId = req.body.userId;
+    const { habits } = req.body;
+
+
+    // Turn array into nested array in preparation for SQL query
+    const habitArray = habits.map((data) => {
+        return [data, userId];
+    });
+    try {
+        connection.query('INSERT INTO UserHabit(habitId, userId) VALUES ?', [habitArray], (error, results, fields) => {
+            if (error) {
+                if (error.code !== "ER_DUP_ENTRY") {
+                    res.status(500);
+                    res.json({ message: "Internal server error" })
+                    console.log(error.code)
+                    return;
+                } else if (error.code === "ER_DUP_ENTRY") {
+                    res.status(400);
+                    return res.json({ message: "Duplicate entry prohibited", error: "ERR_DUP_ENTRY" });
+                }
+
+            }
+
+            res.json(results);
+        });
+    } catch {
+        // Insert error handling
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+
+
+
+
+    // 
+
+    /*try {
+        // Check for undefined fields
+        if (!habitName) {
+            res.status(400);
+            res.json({ message: "Some fields are not filled" });
+        } else {
+            connection.query('INSERT INTO Habits(habitName, habitDescription, goalId) VALUES (?, ?, ?)', [habitName, habitDescription, goalId], (error, results, fields) => {
+                if (error) {
+                    res.status(500);
+                    res.json({ message: "Internal server error" })
+                    return;
+                }
+
+                res.json(results);
+
+
+            })
+        }
+    } catch (error) {
+        // Insert error handling
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+*/
+}
+
 
 module.exports = {
-    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits
+    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit
 }
