@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const { connection } = require('./dbConfig');
 const usersRouter = require('./routes/users.route');
 const notificationsRouter = require('./routes/notifications.route');
+const foodRouter = require('./routes/food.route');
 const cron = require('node-cron');
 const { admin } = require('./firebase');
 const { startMessageService } = require('./messaging');
@@ -96,7 +97,7 @@ connection.query('SELECT * FROM Users', (err, results, fields) => {
 
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    max: 500, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 })
@@ -109,6 +110,7 @@ app.use('/api', limiter)
 // Routes
 app.use('/api/users', usersRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/food', foodRouter);
 
 
 

@@ -16,6 +16,7 @@ const subscribeToReminders = async (req, res) => {
         // Check if preferences exist
         connection.query("SELECT * FROM UserNotifications WHERE userId=?;", [req.body.userId], (error, results, fields) => {
             if (error) {
+                console.log(error);
                 res.status(500);
                 return res.json({ message: "Server error" });
             }
@@ -69,6 +70,7 @@ const subscribeToReminders = async (req, res) => {
                                 console.log('Error subscribing to topic:', error);
                             });
                     } catch (error) {
+                        console.log(error)
                         res.status(500);
                         return res.json("Internal server error or missing input");
                     }
@@ -125,6 +127,7 @@ const subscribeToReminders = async (req, res) => {
                         // Unsubscribe to old topics
                         unsubscribe(prevTopics);
                     } catch (error) {
+                        console.log(error);
                         res.status(500);
                         return res.json({ message: "Internal server error or missing input" });
                     }
@@ -216,6 +219,7 @@ const subscribeToReminders = async (req, res) => {
                     });
             })
         } catch (error) {
+            console.log(error)
             res.status(500);
             res.json({ message: "Internal server error" });
         }
