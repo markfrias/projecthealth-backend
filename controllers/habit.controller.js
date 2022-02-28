@@ -138,7 +138,7 @@ const saveHabit = (req, res) => {
         return [data, userId];
     });
     try {
-        connection.query('INSERT INTO UserHabit(habitId, userId) VALUES ?', [habitArray], (error, results, fields) => {
+        connection.query('DELETE FROM UserHabit WHERE userId=?; INSERT IGNORE INTO UserHabit(habitId, userId) VALUES ?', [userId, habitArray], (error, results, fields) => {
             if (error) {
                 if (error.code !== "ER_DUP_ENTRY") {
                     res.status(500);
