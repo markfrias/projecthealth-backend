@@ -168,7 +168,7 @@ const getUserHabits = (req, res) => {
     const userId = req.body.userId;
 
     try {
-        connection.query('SELECT * FROM UserHabit WHERE userId=?', [userId], (error, results, fields) => {
+        connection.query('SELECT * FROM UserHabit NATURAL JOIN Habits where UserHabit.userId=?;', [userId], (error, results, fields) => {
             if (error) {
 
                 res.status(500);
