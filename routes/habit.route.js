@@ -8,6 +8,7 @@ router.get('/autocomplete', authorize, habitController.autocompleteHabits);
 router.get('/results', authorize, habitController.getSearchedHabits);
 router.get('/all', authorize, habitController.getAllHabits);
 router.post('/save', authorize, habitController.saveHabit);
+router.get('/userhabits', authorize, habitController.getUserHabits);
 
 
 module.exports = router;

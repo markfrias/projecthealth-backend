@@ -44,7 +44,7 @@ const autocompleteHabits = (req, res) => {
             res.status(400);
             res.json({ message: "Some fields are not filled" });
         } else {
-            connection.query("SELECT habitName from Habits WHERE habitName LIKE ?;", ['%' + habitName + '%'], (error, results, fields) => {
+            connection.query("SELECT habitName, habitId, goalId from Habits WHERE habitName LIKE ?;", ['%' + habitName + '%'], (error, results, fields) => {
                 if (error) {
                     res.status(500);
                     res.json({ message: "Internal server error" })
@@ -135,7 +135,7 @@ const saveHabit = (req, res) => {
 
     // Turn array into nested array in preparation for SQL query
     const habitArray = habits.map((data) => {
-        return [data, userId];
+        return [data.habitId, userId];
     });
     try {
         connection.query('DELETE FROM UserHabit WHERE userId=?; INSERT IGNORE INTO UserHabit(habitId, userId) VALUES ?', [userId, habitArray], (error, results, fields) => {
@@ -159,39 +159,33 @@ const saveHabit = (req, res) => {
         res.status(500);
         res.json({ message: "Internal server error" })
     }
+}
 
+// Fetch user specific habits
+const getUserHabits = (req, res) => {
 
+    // Assign request body to variables
+    const userId = req.body.userId;
 
+    try {
+        connection.query('SELECT * FROM UserHabit WHERE userId=?', [userId], (error, results, fields) => {
+            if (error) {
 
-    // 
+                res.status(500);
+                res.json({ message: "Internal server error" })
+                console.log(error.code)
 
-    /*try {
-        // Check for undefined fields
-        if (!habitName) {
-            res.status(400);
-            res.json({ message: "Some fields are not filled" });
-        } else {
-            connection.query('INSERT INTO Habits(habitName, habitDescription, goalId) VALUES (?, ?, ?)', [habitName, habitDescription, goalId], (error, results, fields) => {
-                if (error) {
-                    res.status(500);
-                    res.json({ message: "Internal server error" })
-                    return;
-                }
-
-                res.json(results);
-
-
-            })
-        }
-    } catch (error) {
+            }
+            res.json(results);
+        });
+    } catch {
         // Insert error handling
         res.status(500);
         res.json({ message: "Internal server error" })
     }
-*/
 }
 
 
 module.exports = {
-    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit
+    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits
 }
