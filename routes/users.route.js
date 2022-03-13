@@ -9,5 +9,6 @@ const { authorize } = require('../auth/authorization');
 router.get("/", authorize, userControllers.getUsers);
 router.post("/register", userControllers.registerUser);
 router.post("/login", userControllers.loginUser);
+router.get('/calorieBudget', authorize, userControllers.getCalorieBudget);
 
 module.exports = router;

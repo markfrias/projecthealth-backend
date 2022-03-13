@@ -27,7 +27,7 @@ const createFoodEntry = (req, res) => {
             }
         } else if (diaryType === "detailed") {
             // Check for undefined fields
-            if (!userId || !mealType || !foodId || !foodName || !servingUnit || !servingQty || !caloriesPerUnit || /*!caloriesPer100g ||*/ !carbs || !protein || !fat || !sodium || !weightInG) {
+            if (!userId || !mealType || !foodId || !foodName || !servingUnit || !servingQty || !caloriesPerUnit || /*!caloriesPer100g ||*/ !carbs || !protein || !fat || !sodium) {
                 console.log(userId, new Date(), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG)
                 res.status(400);
                 res.json({ message: "Some fields are not filled" });
