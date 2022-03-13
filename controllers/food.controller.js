@@ -1,4 +1,5 @@
 const { connection } = require('../dbConfig');
+const moment = require('moment')
 
 // Create a new food journal entry
 const createFoodEntry = (req, res) => {
@@ -26,7 +27,7 @@ const createFoodEntry = (req, res) => {
             }
         } else if (diaryType === "detailed") {
             // Check for undefined fields
-            if (!userId || !mealType || !foodId || !foodName || !servingUnit || !servingQty || !caloriesPerUnit || !caloriesPer100g || !carbs || !protein || !fat || !sodium || !weightInG) {
+            if (!userId || !mealType || !foodId || !foodName || !servingUnit || !servingQty || !caloriesPerUnit || /*!caloriesPer100g ||*/ !carbs || !protein || !fat || !sodium || !weightInG) {
                 console.log(userId, new Date(), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG)
                 res.status(400);
                 res.json({ message: "Some fields are not filled" });
@@ -42,6 +43,10 @@ const createFoodEntry = (req, res) => {
                     res.json(results);
                 });
             }
+        } else {
+            res.status(400)
+            res.json({ message: "Error" })
+            return
         }
 
 
@@ -54,7 +59,31 @@ const createFoodEntry = (req, res) => {
     }
 }
 
+const getJournalEntries = (req, res) => {
+
+    // Assign values to variables
+    const { userId } = req.body;
+
+    // Get sum of all nutrients and calories during the day from a specific user
+    try {
+        connection.query("SELECT SUM(carbs) AS sumCarbs, SUM(protein) AS sumProtein, SUM(fat) AS sumFat, SUM(sodium) AS sumSodium, SUM(caloriesPerUnit * servingQty) AS sumCalories FROM FoodJournal WHERE userId=? AND foodJournalDate=?", [userId, moment().format('YYYY-MM-DD')], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
 
 module.exports = {
-    createFoodEntry
+    createFoodEntry, getJournalEntries
 }
