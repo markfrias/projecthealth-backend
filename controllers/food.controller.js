@@ -66,9 +66,10 @@ const getJournalEntries = (req, res) => {
 
     // Get sum of all nutrients and calories during the day from a specific user
     try {
-        connection.query("SELECT SUM(carbs) AS sumCarbs, SUM(protein) AS sumProtein, SUM(fat) AS sumFat, SUM(sodium) AS sumSodium, SUM(caloriesPerUnit * servingQty) AS sumCalories FROM FoodJournal WHERE userId=? AND foodJournalDate=?", [userId, moment().format('YYYY-MM-DD')], (error, results, fields) => {
+        connection.query("SELECT SUM(carbs) AS sumCarbs, SUM(protein) AS sumProtein, SUM(fat) AS sumFat, SUM(sodium) AS sumSodium, SUM(caloriesPerUnit * servingQty) AS sumCalories, Users.calorieBudget FROM FoodJournal INNER JOIN Users ON Users.userId=FoodJournal.userId WHERE FoodJournal.userId=? AND foodJournalDate=? ", [userId, moment().format('YYYY-MM-DD')], (error, results, fields) => {
             if (error) {
                 // Error handling
+                console.log(error)
                 return
             }
             res.json(results)
