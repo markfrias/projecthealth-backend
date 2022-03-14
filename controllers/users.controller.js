@@ -164,6 +164,24 @@ const registerUser = async (req, res) => {
 
 }
 
+// Get users from DB and send to client
+const getCalorieBudget = (req, res) => {
+
+    connection.query('SELECT calorieBudget FROM Users WHERE userId=?', [req.body.userId], (err, results, fields) => {
+        if (err) {
+            res.status(500);
+            res.json({ message: "Error" })
+        }
+
+
+        // Check if output is correct
+        //console.log(usersObject);
+
+        res.json(results);
+
+    })
+};
+
 const loginUser = (req, res) => {
     // Authenticate user
     authenticate(req.body, res)
@@ -171,5 +189,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser
+    getUsers, registerUser, loginUser, getCalorieBudget
 }

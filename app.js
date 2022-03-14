@@ -65,15 +65,6 @@ startMessageService();
 
 app.listen(process.env.PORT, () => console.log(`Server is running on port ${process.env.PORT}`));
 
-// Establish connection with database
-connection.connect((err) => {
-    if (err) {
-        console.log(err);
-    }
-
-    console.log("Successfully connected to database");
-
-});
 
 // Sample database query
 /*
