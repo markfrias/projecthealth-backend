@@ -3,6 +3,26 @@ const { admin } = require('../firebase');
 const jwt = require('jsonwebtoken');
 
 
+// Fetch notification settings from DB
+const getNotificationSettings = async (req, res) => {
+    const userId = req.body.userId;
+
+    try {
+        connection.query('SELECT * FROM UserNotifications WHERE userId=?', [userId], (error, results, fields) => {
+            if (error) {
+                res.status(500);
+                res.json("Internal server error");
+                return;
+            }
+            res.json(results);
+        })
+    } catch (error) {
+        //Error handling
+        res.status(500);
+        res.json({ message: "Internal server error" });
+    }
+}
+
 // Saves reminder preference to server (create if nothing exists, update if a record exists), subscribes to preference topics, unsubscribes to replaced topics via registration token
 const subscribeToReminders = async (req, res) => {
     let jwtoken = req.headers.authorization.slice(7);
@@ -16,6 +36,7 @@ const subscribeToReminders = async (req, res) => {
         // Check if preferences exist
         connection.query("SELECT * FROM UserNotifications WHERE userId=?;", [req.body.userId], (error, results, fields) => {
             if (error) {
+                console.log(error);
                 res.status(500);
                 return res.json({ message: "Server error" });
             }
@@ -69,6 +90,7 @@ const subscribeToReminders = async (req, res) => {
                                 console.log('Error subscribing to topic:', error);
                             });
                     } catch (error) {
+                        console.log(error)
                         res.status(500);
                         return res.json("Internal server error or missing input");
                     }
@@ -125,6 +147,7 @@ const subscribeToReminders = async (req, res) => {
                         // Unsubscribe to old topics
                         unsubscribe(prevTopics);
                     } catch (error) {
+                        console.log(error);
                         res.status(500);
                         return res.json({ message: "Internal server error or missing input" });
                     }
@@ -216,6 +239,7 @@ const subscribeToReminders = async (req, res) => {
                     });
             })
         } catch (error) {
+            console.log(error)
             res.status(500);
             res.json({ message: "Internal server error" });
         }
@@ -226,5 +250,5 @@ const subscribeToReminders = async (req, res) => {
 
 
 module.exports = {
-    subscribeToReminders
+    subscribeToReminders, getNotificationSettings
 }

@@ -34,17 +34,20 @@ const registerUser = async (req, res) => {
         let password;
 
         // Assign request body fields to variables
-        const { username, firstName, lastName, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height } = req.body;
-
+        const { username, firstName, lastName, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height, goals } = req.body;
         // Check required fields
-        if (!username || !firstName || !lastName || !sex || !emailAddress || !passcode || !activityLevel || !calorieBudget || !dateOfBirth || !weight || !height) {
-            res.json({ message: "Error", error: "Missing field" })
+        if (!firstName || !lastName || !sex || !emailAddress || !passcode || !activityLevel || !calorieBudget || !dateOfBirth || !weight || !height) {
+            res.status(400);
+            return res.json({ message: "Error", error: "Missing field" });
         }
 
+
+
         // Check if email address is already used in an existing account
-        connection.query("SELECT * FROM Users WHERE emailAddress=?;", [req.body.emailAddress], (error, results, fields) => {
+        connection.query("SELECT * FROM Users WHERE emailAddress=?; ", [req.body.emailAddress], (error, results, fields) => {
             if (error) {
                 res.status(500);
+                console.error(error)
                 return res.json({ message: "Server error" })
             }
 
@@ -60,21 +63,64 @@ const registerUser = async (req, res) => {
 
                 // Error handling
                 if (err) {
+                    console.error(err)
                     res.status(500);
-                    res.json({ message: "Error" })
+                    return res.json({ message: "Error" })
                 }
 
                 // Store hashed password in DB
                 password = hash;
 
                 // Perform INSERT query to database
-                connection.query('INSERT INTO Users (username, firstname, lastname, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [username, firstName, lastName, sex, emailAddress, password, activityLevel, calorieBudget, dateOfBirth, weight, height], (error, results, fields) => {
+                connection.query('INSERT INTO Users (username, firstname, lastname, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);', [username, firstName, lastName, sex, emailAddress, password, activityLevel, calorieBudget, dateOfBirth, weight, height], (error, results, fields) => {
                     if (error) {
                         console.log(error)
                         // Assign appropriate status code here
-                        res.send({ message: "Error" })
+                        res.status(500);
+                        return res.json({ message: "Error" })
                     }
-                    res.send(results);
+                    // Translate goal names to numbers
+                    const translatedGoals = goals.map((goalName) => {
+                        let number;
+                        switch (goalName) {
+                            case 'eatHealthier':
+                                number = 2
+                                break;
+                            case 'increasePA':
+                                number = 3;
+                                break;
+                            case 'loseWeight':
+                                number = 4;
+                                break;
+                            case 'gainWeight':
+                                number = 5;
+                                break;
+                            case 'maintainWeight':
+                                number = 6;
+                                break;
+                            case 'improveSleep':
+                                number = 7;
+                                break;
+                            case 'reduceAC':
+                                number = 8;
+                                break
+                            default:
+                                number = 2;
+                                break;
+                        }
+                        return [number, results.insertId];
+                    })
+
+                    connection.query('INSERT INTO UserGoals (goalId, userId) VALUES ?', [translatedGoals], (error, results, fields) => {
+                        if (error) {
+                            console.log(error)
+                            // Assign appropriate status code here
+                            res.status(500);
+                            return res.json({ message: "Error" })
+                        }
+
+                        res.json(results);
+                    })
                 })
             });
 
@@ -118,6 +164,24 @@ const registerUser = async (req, res) => {
 
 }
 
+// Get users from DB and send to client
+const getCalorieBudget = (req, res) => {
+
+    connection.query('SELECT calorieBudget FROM Users WHERE userId=?', [req.body.userId], (err, results, fields) => {
+        if (err) {
+            res.status(500);
+            res.json({ message: "Error" })
+        }
+
+
+        // Check if output is correct
+        //console.log(usersObject);
+
+        res.json(results);
+
+    })
+};
+
 const loginUser = (req, res) => {
     // Authenticate user
     authenticate(req.body, res)
@@ -125,5 +189,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser
+    getUsers, registerUser, loginUser, getCalorieBudget
 }
