@@ -3,6 +3,26 @@ const { admin } = require('../firebase');
 const jwt = require('jsonwebtoken');
 
 
+// Fetch notification settings from DB
+const getNotificationSettings = async (req, res) => {
+    const userId = req.body.userId;
+
+    try {
+        connection.query('SELECT * FROM UserNotifications WHERE userId=?', [userId], (error, results, fields) => {
+            if (error) {
+                res.status(500);
+                res.json("Internal server error");
+                return;
+            }
+            res.json(results);
+        })
+    } catch (error) {
+        //Error handling
+        res.status(500);
+        res.json({ message: "Internal server error" });
+    }
+}
+
 // Saves reminder preference to server (create if nothing exists, update if a record exists), subscribes to preference topics, unsubscribes to replaced topics via registration token
 const subscribeToReminders = async (req, res) => {
     let jwtoken = req.headers.authorization.slice(7);
@@ -230,5 +250,5 @@ const subscribeToReminders = async (req, res) => {
 
 
 module.exports = {
-    subscribeToReminders
+    subscribeToReminders, getNotificationSettings
 }
