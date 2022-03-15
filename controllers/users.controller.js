@@ -202,12 +202,8 @@ const updateWeightAndHeight = (req, res) => {
             connection.query('UPDATE Users SET weight=?, height=?, targetWeight=? WHERE userId=?', [weight, height, targetWeight, userId], (err, results, fields) => {
                 if (err) {
                     res.status(500);
-                    res.json({ message: "Error" })
+                    return res.json({ message: "Error" })
                 }
-
-
-                // Check if output is correct
-                //console.log(usersObject);
 
                 res.json(results);
 
