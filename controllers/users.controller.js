@@ -167,19 +167,57 @@ const registerUser = async (req, res) => {
 // Get users from DB and send to client
 const getCalorieBudget = (req, res) => {
 
-    connection.query('SELECT calorieBudget FROM Users WHERE userId=?', [req.body.userId], (err, results, fields) => {
-        if (err) {
+    try {
+        connection.query('SELECT calorieBudget FROM Users WHERE userId=?', [req.body.userId], (err, results, fields) => {
+            if (err) {
+                res.status(500);
+                res.json({ message: "Error" })
+            }
+
+
+            // Check if output is correct
+            //console.log(usersObject);
+
+            res.json(results);
+
+        })
+    } catch (error) {
+        res.status(500);
+        res.json({ message: "Internal server error" });
+    }
+
+};
+
+// Update weight and height for the logged in user
+const updateWeightAndHeight = (req, res) => {
+
+    const { weight, height, targetWeight, userId } = req.body;
+
+    // Check if there's an unfilled field
+    if (!weight || !height || !targetWeight) {
+        res.status(400);
+        res.json({ message: "Bad request" });
+    } else {
+        try {
+            connection.query('UPDATE Users SET weight=?, height=?, targetWeight=? WHERE userId=?', [weight, height, targetWeight, userId], (err, results, fields) => {
+                if (err) {
+                    res.status(500);
+                    res.json({ message: "Error" })
+                }
+
+
+                // Check if output is correct
+                //console.log(usersObject);
+
+                res.json(results);
+
+            })
+        } catch (error) {
             res.status(500);
-            res.json({ message: "Error" })
+            res.json({ message: "Internal server error" });
         }
+    }
 
-
-        // Check if output is correct
-        //console.log(usersObject);
-
-        res.json(results);
-
-    })
 };
 
 const loginUser = (req, res) => {
@@ -189,5 +227,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser, getCalorieBudget
+    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight
 }
