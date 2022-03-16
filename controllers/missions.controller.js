@@ -1,3 +1,4 @@
+const moment = require('moment');
 const { connection } = require('../dbConfig');
 
 
@@ -86,10 +87,11 @@ const getUserMissions = (req, res) => {
     const userId = req.body.userId;
 
     try {
-        connection.query('SELECT * FROM MissionsCalendar WHERE userId=?', [userId], (error, results, fields) => {
+        connection.query('SELECT MissionsCalendar.missionEntryId, MissionsCalendar.missionId, MissionsCalendar.missionAccomplished, Missions.missionName FROM Missions JOIN MissionsCalendar ON MissionsCalendar.missionId = Missions.missionId WHERE userId=? AND MissionsCalendar.missionEntryDate = ?', [userId, moment().format('YYYY-MM-DD')], (error, results, fields) => {
             if (error) {
                 // Add error handling
                 res.status(500);
+                console.error(error);
                 return res.json({ message: "Internal server error" });
             }
 
