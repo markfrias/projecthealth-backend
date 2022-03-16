@@ -3,10 +3,7 @@ const { connection } = require('../dbConfig');
 
 // Fetch user specific habits
 const addJournalEntries = (req, res) => {
-
-
     try {
-
         connection.query('SELECT * FROM Users', (err, results, fields) => {
             if (err) {
                 // Add error handling
@@ -62,9 +59,6 @@ const addJournalEntries = (req, res) => {
 
                             generateItems();
 
-
-
-
                         }
 
                         connection.query('INSERT INTO MissionsCalendar (userId, missionId, missionEntryDate) VALUES (?, ?, ?); INSERT INTO MissionsCalendar (userId, missionId, missionEntryDate) VALUES (?, ?, ?); INSERT INTO MissionsCalendar (userId, missionId, missionEntryDate) VALUES (?, ?, ?);', [user.userId, listToSend[0].missionId, new Date(), user.userId, listToSend[1].missionId, new Date(), user.userId, listToSend[2].missionId, new Date()], (error, results, fields) => {
@@ -75,23 +69,9 @@ const addJournalEntries = (req, res) => {
                             //console.log(userId)
 
                         })
-
                     })
-
-
-
-
-
-
-
-
                 });
             });
-
-
-
-
-
         })
 
 
@@ -102,8 +82,50 @@ const addJournalEntries = (req, res) => {
     }
 }
 
+const getUserMissions = (req, res) => {
+    const userId = req.body.userId;
+
+    try {
+        connection.query('SELECT * FROM MissionsCalendar WHERE userId=?', [userId], (error, results, fields) => {
+            if (error) {
+                // Add error handling
+                res.status(500);
+                return res.json({ message: "Internal server error" });
+            }
+
+            // Response when query is successful
+            res.json(results);
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500);
+        res.json({ message: "Internal server error" });
+    }
+}
+
+const updateMissionStatus = (req, res) => {
+    const { missionEntryId, missionAccomplished } = req.body;
+    try {
+        connection.query('UPDATE MissionsCalendar SET missionAccomplished = ? WHERE missionEntryId=?', [missionAccomplished, missionEntryId], (error, results, fields) => {
+            if (error) {
+                // Add error handling
+                res.status(500);
+                return res.json({ message: "Internal server error" });
+            }
+
+            // Response when query is successful
+            console.log(results);
+            res.json(results);
+        })
+    } catch (error) {
+        console.error(error);
+        res.status(500);
+        res.json({ message: "Internal server error" });
+    }
+}
+
 
 
 module.exports = {
-    addJournalEntries
+    addJournalEntries, getUserMissions, updateMissionStatus
 }

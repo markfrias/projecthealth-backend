@@ -1,6 +1,5 @@
 const cron = require('node-cron');
 const { addJournalEntries } = require('./controllers/missions.controller');
-const { getUsersLocal } = require('./controllers/users.controller');
 
 // Set daily missions for all users at midnight GMT+08:00
 const changeMissions = () => {
