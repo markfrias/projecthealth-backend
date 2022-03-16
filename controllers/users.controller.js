@@ -25,6 +25,30 @@ const getUsers = (req, res) => {
     })
 };
 
+// Get users from DB and send to functions within the server
+const getUsersLocal = (req, res) => {
+
+    connection.query('SELECT * FROM Users', (err, results, fields) => {
+        if (err) {
+            // Add error handling
+        }
+
+        let usersObject = results.map((mysqlObject, index) => {
+            return Object.assign({}, mysqlObject);
+        });
+
+        sample = usersObject;
+
+        // Check if output is correct
+        //console.log(usersObject);
+        console.log("hello")
+
+        return results;
+
+
+    })
+};
+
 // Creates a new user
 const registerUser = async (req, res) => {
 
@@ -223,5 +247,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight
+    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal
 }

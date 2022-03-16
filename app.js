@@ -8,10 +8,12 @@ const usersRouter = require('./routes/users.route');
 const notificationsRouter = require('./routes/notifications.route');
 const foodRouter = require('./routes/food.route');
 const habitRouter = require('./routes/habit.route');
+const missionsRouter = require('./routes/missions.route');
 const cron = require('node-cron');
 const { admin } = require('./firebase');
 const { startMessageService } = require('./messaging');
-const rateLimit = require('express-rate-limit')
+const rateLimit = require('express-rate-limit');
+const { changeMissions } = require('./setMissions');
 
 
 // Initialize express
@@ -48,6 +50,7 @@ admin.messaging().subscribeToTopic(registrationToken, topic)
 
 // Start sending messages if subscriptions want to send messages
 startMessageService();
+changeMissions();
 
 
 
@@ -104,6 +107,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/food', foodRouter);
 app.use('/api/habit', habitRouter);
+app.use('/api/missions', missionsRouter)
 
 
 
