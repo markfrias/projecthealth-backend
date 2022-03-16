@@ -103,6 +103,7 @@ const getUserMissions = (req, res) => {
         res.status(500);
         res.json({ message: "Internal server error" });
     }
+
 }
 
 const updateMissionStatus = (req, res) => {
