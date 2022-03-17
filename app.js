@@ -14,6 +14,7 @@ const { admin } = require('./firebase');
 const { startMessageService } = require('./messaging');
 const rateLimit = require('express-rate-limit');
 const { changeMissions } = require('./setMissions');
+const { addHabitEntries } = require('./setHabitEntries');
 
 
 // Initialize express
@@ -51,7 +52,7 @@ admin.messaging().subscribeToTopic(registrationToken, topic)
 // Start sending messages if subscriptions want to send messages
 startMessageService();
 changeMissions();
-
+addHabitEntries();
 
 
 
