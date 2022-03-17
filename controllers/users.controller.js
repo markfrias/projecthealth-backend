@@ -240,6 +240,25 @@ const updateWeightAndHeight = (req, res) => {
 
 };
 
+// Update weight and height for the logged in user
+const deleteAccount = (req, res) => {
+    const userId = req.body.userId;
+    try {
+        connection.query('DELETE FROM Users WHERE userId=?', [userId], (err, results, fields) => {
+            if (err) {
+                res.status(500);
+                return res.json({ message: "Error" })
+            }
+
+            res.json({ message: "Account deleted" });
+
+        })
+    } catch (error) {
+        res.status(500);
+        res.json({ message: "Internal server error" });
+    }
+};
+
 const loginUser = (req, res) => {
     // Authenticate user
     authenticate(req.body, res)
@@ -247,5 +266,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal
+    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal, deleteAccount
 }
