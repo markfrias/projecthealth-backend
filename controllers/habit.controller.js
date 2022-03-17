@@ -259,8 +259,34 @@ const addJournalEntries = (req, res) => {
     }
 }
 
+const getJournalEntriesOnMonth = (req, res) => {
+
+    // Assign values to variables
+    const { userId } = req.body;
+    const { month, year } = req.query;
+
+    // Get sum of all nutrients and calories during the day from a specific user
+    try {
+        connection.query("SELECT * FROM HabitJournal WHERE userId=? AND habitEntryDate like ?;", [userId, `${year}-${month}-__`], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
 
 
 module.exports = {
-    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries
+    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries, getJournalEntriesOnMonth
 }
