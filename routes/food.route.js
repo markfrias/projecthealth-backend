@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.post("/createEntry", authorize, foodControllers.createFoodEntry);
 router.get("/entry/day/agg", authorize, foodControllers.getJournalEntries);
+router.get(`/entry`, authorize, foodControllers.getJournalEntriesOnMonth)
 
 
 module.exports = router;
