@@ -10,6 +10,7 @@ router.get("/", authorize, userControllers.getUsers);
 router.post("/register", userControllers.registerUser);
 router.post("/login", userControllers.loginUser);
 router.get('/calorieBudget', authorize, userControllers.getCalorieBudget);
-router.patch('/modify-weight', authorize, userControllers.updateWeightAndHeight)
+router.patch('/modify-weight', authorize, userControllers.updateWeightAndHeight);
+router.delete('/delete', authorize, userControllers.deleteAccount);
 
 module.exports = router;

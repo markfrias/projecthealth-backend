@@ -185,7 +185,108 @@ const getUserHabits = (req, res) => {
     }
 }
 
+// Fetch user specific habits
+const addJournalEntries = (req, res) => {
+    try {
+        connection.query('SELECT * FROM Users', (err, results, fields) => {
+            if (err) {
+                // Add error handling
+            }
+
+
+            results.forEach((user) => {
+                console.log(user.userId)
+                //console.log(user.userId)
+                user.userId
+
+
+                connection.query('SELECT UserHabit.habitId, Habits.habitName, Habits.goalId, Goals.goalName FROM UserHabit JOIN Habits ON Habits.habitId=UserHabit.habitId JOIN Goals ON Goals.goalId=Habits.goalId WHERE userId=?;', [user.userId], (error, results, fields) => {
+                    if (error) {
+                        // Add error handling !!!
+                        console.log(error);
+                    }
+
+                    const listToSend = [];
+                    results.forEach((habit) => {
+                        let isSame = false;
+                        const generateItems = () => {
+                            const itemToInsert = results[Math.floor(Math.random() * (results.length - 0) + 0)];
+                            listToSend.forEach((item) => {
+                                if (itemToInsert.habitId === item.habitId) {
+                                    return isSame = true;
+                                }
+
+                            });
+                            if (isSame) {
+                                isSame = false;
+                                generateItems();
+                            } else {
+                                listToSend.push(itemToInsert);
+                            }
+
+                        }
+
+                        generateItems();
+                    });
+
+                    console.log(listToSend)
+
+                    const habitsArray = listToSend.map((habit) => {
+                        return [user.userId, habit.habitId, new Date()];
+                    })
+
+                    if (habitsArray.length === 0) {
+                        return;
+                    }
+                    connection.query('INSERT INTO HabitJournal(userId, habitId, habitEntryDate) VALUES ?', [habitsArray], (error, results, fields) => {
+                        if (error) {
+                            console.log(error);
+                            // Add error handling !!!
+                        }
+                        //console.log(userId)
+                        console.log(results)
+
+                    })
+                })
+            });
+        })
+
+
+    } catch {
+        // Insert error handling
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
+const getJournalEntriesOnMonth = (req, res) => {
+
+    // Assign values to variables
+    const { userId } = req.body;
+    const { month, year } = req.query;
+
+    // Get sum of all nutrients and calories during the day from a specific user
+    try {
+        connection.query("SELECT * FROM HabitJournal WHERE userId=? AND habitEntryDate like ?;", [userId, `${year}-${month}-__`], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
+
 
 module.exports = {
-    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits
+    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries, getJournalEntriesOnMonth
 }

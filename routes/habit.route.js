@@ -9,6 +9,8 @@ router.get('/results', authorize, habitController.getSearchedHabits);
 router.get('/all', authorize, habitController.getAllHabits);
 router.post('/save', authorize, habitController.saveHabit);
 router.get('/userhabits', authorize, habitController.getUserHabits);
+router.post('/journal/create', authorize, habitController.addJournalEntries);
+router.get('/entry', authorize, habitController.getJournalEntriesOnMonth);
 
 
 module.exports = router;
