@@ -16,7 +16,7 @@ const createFoodEntry = (req, res) => {
             } else {
 
                 // Save quick note to food journal
-                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodName, servingDescription, photosUrl) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, new Date(), mealType, diaryType, foodName, servingDescription, photosUrl], (error, results, fields) => {
+                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodName, servingDescription, photosUrl) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, moment().tz("Asia/Manila").format('YYYY-MM-DD'), mealType, diaryType, foodName, servingDescription, photosUrl], (error, results, fields) => {
                     if (error) {
                         console.log(error)
                         res.json({ message: "An error ffs" })
@@ -110,6 +110,7 @@ const getJournalEntriesOnMonth = (req, res) => {
     }
 }
 
+// Returns food logs from a specific day and the calorie budget for that specific user
 const getJournalEntriesOnDay = (req, res) => {
 
     // Assign values to variables
@@ -118,7 +119,7 @@ const getJournalEntriesOnDay = (req, res) => {
 
     // Get sum of all nutrients and calories during the day from a specific user
     try {
-        connection.query("SELECT * FROM FoodJournal WHERE userId=? AND foodJournalDate like ?;", [userId, `${year}-${month}-${day}`], (error, results, fields) => {
+        connection.query("SELECT * FROM FoodJournal WHERE userId=? AND foodJournalDate like ?; SELECT calorieBudget FROM Users WHERE userid=?", [userId, `${year}-${month}-${day}`, userId], (error, results, fields) => {
             if (error) {
                 // Error handling
                 console.log(error)
