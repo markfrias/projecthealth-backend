@@ -246,6 +246,7 @@ const deleteAccount = (req, res) => {
     try {
         connection.query('DELETE FROM Users WHERE userId=?', [userId], (err, results, fields) => {
             if (err) {
+                console.log(err)
                 res.status(500);
                 return res.json({ message: "Error" })
             }
@@ -256,6 +257,7 @@ const deleteAccount = (req, res) => {
     } catch (error) {
         res.status(500);
         res.json({ message: "Internal server error" });
+        console.log(error)
     }
 };
 

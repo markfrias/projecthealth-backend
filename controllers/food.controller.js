@@ -27,8 +27,8 @@ const createFoodEntry = (req, res) => {
             }
         } else if (diaryType === "detailed") {
             // Check for undefined fields
-            if (!userId || !mealType || !foodId || !foodName || !servingUnit || !servingQty || !caloriesPerUnit || /*!caloriesPer100g ||*/ !carbs || !protein || !fat || !sodium) {
-                console.log(userId, new Date(), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG)
+            if (!userId || !mealType || !foodId || !foodName || !servingUnit || !servingQty || caloriesPerUnit === "undefined" || caloriesPerUnit === "" || carbs === "undefined" || carbs === "" || protein === "undefined" || protein === "" || fat === "undefined" || fat === "" || sodium === "undefined" || sodium === "") {
+                console.log(userId, mealType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, "carbs:", carbs, protein, fat, sodium)
                 res.status(400);
                 res.json({ message: "Some fields are not filled" });
             } else {
@@ -110,7 +110,33 @@ const getJournalEntriesOnMonth = (req, res) => {
     }
 }
 
+const getJournalEntriesOnDay = (req, res) => {
+
+    // Assign values to variables
+    const { userId } = req.body;
+    const { month, year, day } = req.query;
+
+    // Get sum of all nutrients and calories during the day from a specific user
+    try {
+        connection.query("SELECT * FROM FoodJournal WHERE userId=? AND foodJournalDate like ?;", [userId, `${year}-${month}-${day}`], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
 
 module.exports = {
-    createFoodEntry, getJournalEntries, getJournalEntriesOnMonth
+    createFoodEntry, getJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay
 }
