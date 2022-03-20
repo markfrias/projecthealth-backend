@@ -285,8 +285,35 @@ const getJournalEntriesOnMonth = (req, res) => {
     }
 }
 
+// Returns food logs from a specific day and the calorie budget for that specific user
+const getJournalEntriesOnDay = (req, res) => {
+
+    // Assign values to variables
+    const { userId } = req.body;
+    const { month, year, day } = req.query;
+
+    // Get sum of all nutrients and calories during the day from a specific user
+    try {
+        connection.query("SELECT HabitJournal.habitId, HabitJournal.habitEntryId, HabitJournal.habitAccomplished, HabitJournal.habitEntryDate, Habits.habitName, Goals.goalName FROM HabitJournal JOIN Habits ON HabitJournal.habitId=Habits.habitId JOIN Goals ON Goals.goalId=Habits.goalId WHERE userId=? AND habitEntryDate like ?", [userId, `${year}-${month}-${day}`], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
 
 
 module.exports = {
-    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries, getJournalEntriesOnMonth
+    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay
 }
