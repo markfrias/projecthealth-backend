@@ -12,7 +12,7 @@ router.get('/userhabits', authorize, habitController.getUserHabits);
 router.post('/journal/create', authorize, habitController.addJournalEntries);
 router.get('/entry', authorize, habitController.getJournalEntriesOnMonth);
 router.get("/entry/day", authorize, habitController.getJournalEntriesOnDay);
-
+router.get("/streaks", authorize, habitController.getHabitStreaks);
 
 
 module.exports = router;
