@@ -138,6 +138,84 @@ const getJournalEntriesOnDay = (req, res) => {
 }
 
 
+// Fetch user specific habits
+const addCalendarEntry = (req, res) => {
+    try {
+        connection.query('SELECT * FROM Users', (err, results, fields) => {
+            if (err) {
+                // Add error handling
+            }
+
+
+            results.forEach((user) => {
+                console.log(user.userId)
+                //console.log(user.userId)
+                user.userId
+
+
+                connection.query('INSERT INTO FoodCalendar(userId, journalDate, journalLogged) VALUES (?, ?, ?)', [user.userId, moment().tz('Asia/Manila').format('YYYY-MM-DD'), 0], (error, results, fields) => {
+                    if (error) {
+                        console.log(error);
+                        // Add error handling !!!
+                    }
+                    //console.log(userId)
+                    console.log(results)
+
+                })
+
+            });
+        })
+
+
+    } catch {
+        // Insert error handling
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
+// Returns streaks for habits
+const getFoodJournalStreaks = (req, res) => {
+
+    // Assign values to variables
+    const { userId } = req.body;
+
+    // Get streaks
+    try {
+        connection.query(`with streakgroup as (
+            SELECT RANK() OVER (ORDER by journalDate) AS streakrowno,
+            journalDate, 
+            DATE_ADD( journalDate, INTERVAL -RANK() OVER (ORDER BY journalDate) DAY) AS dateadd
+            from FoodCalendar
+            where userId=? and journalLogged=1
+                order by journalDate
+        )
+        
+        SELECT COUNT(*) AS days_streak,
+        MIN(journalDate) AS min_date,
+        MAX(journalDate) AS max_date
+        from streakgroup
+        group by dateadd
+        `, [userId], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
+
+
 module.exports = {
-    createFoodEntry, getJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay
+    createFoodEntry, getJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay, addCalendarEntry, getFoodJournalStreaks
 }
