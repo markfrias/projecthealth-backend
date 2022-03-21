@@ -232,7 +232,7 @@ const addJournalEntries = (req, res) => {
                     console.log(listToSend)
 
                     const habitsArray = listToSend.map((habit) => {
-                        return [user.userId, habit.habitId, new Date()];
+                        return [user.userId, habit.habitId, moment().tz('Asia/Manila')];
                     })
 
                     if (habitsArray.length === 0) {
@@ -312,8 +312,47 @@ const getJournalEntriesOnDay = (req, res) => {
     }
 }
 
+// Returns streaks for habits
+const getHabitStreaks = (req, res) => {
+
+    // Assign values to variables
+    const { userId, habitId } = req.body;
+
+    // Get streaks
+    try {
+        connection.query(`with streakgroup as (
+            SELECT RANK() OVER (ORDER by habitEntryDate) AS streakrowno,
+            habitEntryDate, 
+            DATE_ADD( habitEntryDate, INTERVAL -RANK() OVER (ORDER BY habitEntryDate) DAY) AS dateadd
+            from HabitJournal
+            where habitId=? and userId=? and habitAccomplished=1
+                order by habitEntryDate
+        )
+        
+        SELECT COUNT(*) AS days_streak,
+        MIN(habitEntryDate) AS min_date,
+        MAX(habitEntryDate) AS max_date
+        from streakgroup
+        group by dateadd`, [habitId, userId], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
 
 
 module.exports = {
-    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay
+    createHabit, autocompleteHabits, getSearchedHabits, getAllHabits, saveHabit, getUserHabits, addJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay, getHabitStreaks
 }
