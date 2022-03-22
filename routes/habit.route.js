@@ -13,6 +13,8 @@ router.post('/journal/create', authorize, habitController.addJournalEntries);
 router.get('/entry', authorize, habitController.getJournalEntriesOnMonth);
 router.get("/entry/day", authorize, habitController.getJournalEntriesOnDay);
 router.get("/streaks", authorize, habitController.getHabitStreaks);
+router.get("/entry/all", authorize, habitController.getAllEntries);
+router.patch("/entry/update", authorize, habitController.updateJournalEntry);
 
 
 module.exports = router;
