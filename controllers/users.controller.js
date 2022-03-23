@@ -1,6 +1,8 @@
 const { connection } = require('../dbConfig');
 const { authenticate } = require('../auth/authentication');
 const bcrypt = require('bcrypt');
+const { addJournalEntries, addJournalEntry } = require('./missions.controller');
+const { addCalendarEntry, addCalendarEntrySingle } = require('./food.controller');
 
 // Get users from DB and send to client
 const getUsers = (req, res) => {
@@ -51,7 +53,7 @@ const getUsersLocal = (req, res) => {
 
 // Creates a new user
 const registerUser = async (req, res) => {
-
+    let userId;
     try {
 
         // Declare a passcode variable
@@ -103,6 +105,8 @@ const registerUser = async (req, res) => {
                         res.status(500);
                         return res.json({ message: "Error" })
                     }
+                    // Assign userId
+                    userId = results.insertId;
                     // Translate goal names to numbers
                     const translatedGoals = goals.map((goalName) => {
                         let number;
@@ -135,6 +139,8 @@ const registerUser = async (req, res) => {
                         return [number, results.insertId];
                     })
 
+
+
                     connection.query('INSERT INTO UserGoals (goalId, userId) VALUES ?', [translatedGoals], (error, results, fields) => {
                         if (error) {
                             console.log(error)
@@ -144,6 +150,8 @@ const registerUser = async (req, res) => {
                         }
 
                         res.json(results);
+                        addJournalEntry(userId)
+                        addCalendarEntrySingle(userId);
                     })
                 })
             });

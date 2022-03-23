@@ -5,6 +5,10 @@ const moment = require('moment')
 const createFoodEntry = (req, res) => {
     const { mealType, diaryType, foodId, foodName, servingDescription, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG, photosUrl } = req.body;
     const userId = req.body.userId;
+    const year = moment().tz('Asia/Manila').format('YYYY');
+    const month = moment().tz('Asia/Manila').format('MM');
+    const day = moment().tz('Asia/Manila').format('DD');
+
     // Create food entry for quick note food diary entry
     try {
         if (diaryType === "quick") {
@@ -16,7 +20,7 @@ const createFoodEntry = (req, res) => {
             } else {
 
                 // Save quick note to food journal
-                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodName, servingDescription, photosUrl) VALUES (?, ?, ?, ?, ?, ?, ?)', [userId, moment().tz("Asia/Manila").format('YYYY-MM-DD'), mealType, diaryType, foodName, servingDescription, photosUrl], (error, results, fields) => {
+                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodName, servingDescription, photosUrl) VALUES (?, ?, ?, ?, ?, ?, ?); UPDATE FoodCalendar SET journalLogged=1 WHERE journalDate=? AND userId=?;', [userId, moment().tz("Asia/Manila").format('YYYY-MM-DD'), mealType, diaryType, foodName, servingDescription, photosUrl, `${year}-${month}-${day}`, userId], (error, results, fields) => {
                     if (error) {
                         console.log(error)
                         res.json({ message: "An error ffs" })
@@ -33,7 +37,7 @@ const createFoodEntry = (req, res) => {
                 res.json({ message: "Some fields are not filled" });
             } else {
                 // Save detailed log to food journal
-                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [userId, new Date(), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG], (error, results, fields) => {
+                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); UPDATE FoodCalendar SET journalLogged=1 WHERE journalDate=? AND userId=?;', [userId, new Date(), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG, `${year}-${month}-${day}`, userId], (error, results, fields) => {
                     if (error) {
                         //console.log(error)
                         res.status(500);
@@ -138,7 +142,7 @@ const getJournalEntriesOnDay = (req, res) => {
 }
 
 
-// Fetch user specific habits
+// Create new calendar entry per user
 const addCalendarEntry = (req, res) => {
     try {
         connection.query('SELECT * FROM Users', (err, results, fields) => {
@@ -165,6 +169,34 @@ const addCalendarEntry = (req, res) => {
 
             });
         })
+
+
+    } catch {
+        // Insert error handling
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
+// Create new calendar entry per user
+const addCalendarEntrySingle = (userId) => {
+    try {
+
+
+
+
+        connection.query('INSERT INTO FoodCalendar(userId, journalDate, journalLogged) VALUES (?, ?, ?)', [userId, moment().tz('Asia/Manila').format('YYYY-MM-DD'), 0], (error, results, fields) => {
+            if (error) {
+                console.log(error);
+                // Add error handling !!!
+            }
+            //console.log(userId)
+            console.log(results)
+
+        })
+
+
+
 
 
     } catch {
@@ -214,8 +246,35 @@ const getFoodJournalStreaks = (req, res) => {
     }
 }
 
+// Returns streaks for habits
+const updateStreaks = (req, res) => {
+
+    // Assign values to variables
+    const { userId, year, month, day } = req.body;
+
+    // Get streaks
+    try {
+        connection.query(`UPDATE FoodCalendar SET journalLogged=1 WHERE journalDate=? AND userId=?
+        `, [`${year}-${month}-${day}`, userId], (error, results, fields) => {
+            if (error) {
+                // Error handling
+                console.log(error)
+                return
+            }
+            res.json(results)
+
+        })
+
+    } catch (error) {
+        // Handle error
+        // Change this later
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+}
+
 
 
 module.exports = {
-    createFoodEntry, getJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay, addCalendarEntry, getFoodJournalStreaks
+    createFoodEntry, getJournalEntries, getJournalEntriesOnMonth, getJournalEntriesOnDay, addCalendarEntry, getFoodJournalStreaks, updateStreaks, addCalendarEntrySingle
 }
