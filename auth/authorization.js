@@ -28,7 +28,11 @@ const authorize = function (req, res, next) {
 
     jwt.verify(jwtoken, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
-            console.log(err);
+            if (err.name === "TokenExpiredError") {
+                res.status(401);
+                return res.json({ message: "Unauthorized" })
+            }
+
             return res.status(500).send("Server error");
 
         }

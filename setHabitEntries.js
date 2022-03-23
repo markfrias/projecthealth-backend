@@ -4,7 +4,7 @@ const { addJournalEntries } = require('./controllers/habit.controller');
 
 // Set daily missions for all users at midnight GMT+08:00
 const addHabitEntries = () => {
-    cron.schedule('0 0 * * *', () => {
+    cron.schedule('2 0 * * *', () => {
         addJournalEntries();
 
     }, {
@@ -18,6 +18,7 @@ const addHabitEntries = () => {
         scheduled: true,
         timezone: 'Asia/Manila'
     })
+
 };
 module.exports = {
     addHabitEntries

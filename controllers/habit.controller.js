@@ -429,11 +429,11 @@ const getHabitStreaks = (req, res) => {
 const updateJournalEntry = (req, res) => {
 
     // Assign values to variables
-    const { userId, habitId, habitAccomplished } = req.body;
+    const { userId, habitId, habitAccomplished, habitEntryId } = req.body;
 
     // Get streaks
     try {
-        connection.query(`UPDATE HabitJournal SET habitAccomplished=? WHERE userId=? AND habitId=?`, [habitAccomplished, userId, habitId], (error, results, fields) => {
+        connection.query(`UPDATE HabitJournal SET habitAccomplished=? WHERE habitEntryId=?`, [habitAccomplished, habitEntryId], (error, results, fields) => {
             if (error) {
                 // Error handling
                 console.log(error)
