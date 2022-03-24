@@ -86,10 +86,12 @@ const addJournalEntries = (req, res) => {
 const addJournalEntry = (userId) => {
     console.log(userId)
     try {
-        connection.query('SELECT level FROM Users WHERE userId=?', [userId], (error, results, fields) => {
+        connection.query('SELECT levelId FROM Users WHERE userId=?', [userId], (error, results, fields) => {
             if (error) {
                 // Add error handling here !!!
                 console.log(error.code)
+                console.log(error)
+
 
             }
 

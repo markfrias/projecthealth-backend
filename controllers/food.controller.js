@@ -188,6 +188,7 @@ const addCalendarEntrySingle = (userId) => {
         connection.query('INSERT INTO FoodCalendar(userId, journalDate, journalLogged) VALUES (?, ?, ?)', [userId, moment().tz('Asia/Manila').format('YYYY-MM-DD'), 0], (error, results, fields) => {
             if (error) {
                 console.log(error);
+                console.log("yeet")
                 // Add error handling !!!
             }
             //console.log(userId)
