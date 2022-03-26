@@ -20,7 +20,7 @@ const addHabitEntries = () => {
         timezone: 'Asia/Manila'
     })
 
-    cron.schedule('29 16 * * *', () => {
+    cron.schedule('07 0 * * *', () => {
         updateWeightFromYesterday();
         console.log("yeet")
 

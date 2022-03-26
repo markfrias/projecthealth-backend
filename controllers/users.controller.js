@@ -244,7 +244,7 @@ const getCalorieBudget = (req, res) => {
 
 // Update weight and height for the logged in user
 const updateWeightAndHeight = (req, res) => {
-
+    console.log(req.body)
     const { weight, height, targetWeight, userId } = req.body;
 
     // Check if there's an unfilled field
