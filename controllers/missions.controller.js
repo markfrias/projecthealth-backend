@@ -16,17 +16,18 @@ const addJournalEntries = (req, res) => {
                 //console.log(user.userId)
                 user.userId
 
-                connection.query('SELECT level FROM Users WHERE userId=?', [user.userId], (error, results, fields) => {
+                connection.query('SELECT levelId FROM Users WHERE userId=?', [user.userId], (error, results, fields) => {
                     if (error) {
                         // Add error handling here !!!
                         console.log(error.code)
+                        console.log(error)
 
                     }
 
                     if (results === undefined) {
                         return
                     }
-                    const userLevel = results[0].level;
+                    const userLevel = results[0].levelId;
                     console.log(user.userId + " " + userLevel)
 
 
