@@ -53,6 +53,9 @@ admin.messaging().subscribeToTopic(registrationToken, topic)
 startMessageService();
 changeMissions();
 addHabitEntries();
+setInterval(() => {
+    app.get("https://projecthealthapp.herokuapp.com/api/users/");
+}, 300000);
 
 
 

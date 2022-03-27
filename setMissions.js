@@ -3,7 +3,7 @@ const { addJournalEntries } = require('./controllers/missions.controller');
 
 // Set daily missions for all users at midnight GMT+08:00
 const changeMissions = () => {
-    cron.schedule('0 0 * * *', () => {
+    cron.schedule('02 0 * * *', () => {
         addJournalEntries();
 
     }, {
