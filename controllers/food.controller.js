@@ -37,7 +37,7 @@ const createFoodEntry = (req, res) => {
                 res.json({ message: "Some fields are not filled" });
             } else {
                 // Save detailed log to food journal
-                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); UPDATE FoodCalendar SET journalLogged=1 WHERE journalDate=? AND userId=?;', [userId, new Date(), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG, `${year}-${month}-${day}`, userId], (error, results, fields) => {
+                connection.query('INSERT INTO FoodJournal(userId, foodJournalDate, mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?); UPDATE FoodCalendar SET journalLogged=1 WHERE journalDate=? AND userId=?;', [userId, moment().tz('Asia/Manila').format('YYYY-MM-DD'), mealType, diaryType, foodId, foodName, servingUnit, servingQty, caloriesPerUnit, caloriesPer100g, carbs, protein, fat, sodium, weightInG, `${year}-${month}-${day}`, userId], (error, results, fields) => {
                     if (error) {
                         //console.log(error)
                         res.status(500);
