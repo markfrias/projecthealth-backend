@@ -1,7 +1,7 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-
+const fetch = require('node-fetch')
 const mysql = require('mysql');
 const { connection } = require('./dbConfig');
 const usersRouter = require('./routes/users.route');
@@ -54,9 +54,9 @@ startMessageService();
 changeMissions();
 addHabitEntries();
 setInterval(() => {
-    app.get("https://projecthealthapp.herokuapp.com/api/users/");
+    fetch("https://projecthealthapp.herokuapp.com/api/");
+    console.log('Keep awake');
 }, 300000);
-
 
 
 
