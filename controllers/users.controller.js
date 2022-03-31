@@ -1,6 +1,9 @@
 const { connection } = require('../dbConfig');
 const { authenticate } = require('../auth/authentication');
 const bcrypt = require('bcrypt');
+const { addJournalEntries, addJournalEntry } = require('./missions.controller');
+const { addCalendarEntry, addCalendarEntrySingle } = require('./food.controller');
+const moment = require('moment');
 
 // Get users from DB and send to client
 const getUsers = (req, res) => {
@@ -51,16 +54,16 @@ const getUsersLocal = (req, res) => {
 
 // Creates a new user
 const registerUser = async (req, res) => {
-
+    let userId;
     try {
 
         // Declare a passcode variable
         let password;
 
         // Assign request body fields to variables
-        const { username, firstName, lastName, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height, goals } = req.body;
+        const { username, firstName, lastName, sex, emailAddress, passcode, activityLevel, calorieBudget, dateOfBirth, weight, height, targetWeight, goals } = req.body;
         // Check required fields
-        if (!firstName || !lastName || !sex || !emailAddress || !passcode || !activityLevel || !calorieBudget || !dateOfBirth || !weight || !height) {
+        if (!firstName || !lastName || !sex || !emailAddress || !passcode || !activityLevel || !calorieBudget || !dateOfBirth || !weight || !height || !targetWeight) {
             res.status(400);
             return res.json({ message: "Error", error: "Missing field" });
         }
@@ -103,6 +106,8 @@ const registerUser = async (req, res) => {
                         res.status(500);
                         return res.json({ message: "Error" })
                     }
+                    // Assign userId
+                    userId = results.insertId;
                     // Translate goal names to numbers
                     const translatedGoals = goals.map((goalName) => {
                         let number;
@@ -135,6 +140,8 @@ const registerUser = async (req, res) => {
                         return [number, results.insertId];
                     })
 
+
+
                     connection.query('INSERT INTO UserGoals (goalId, userId) VALUES ?', [translatedGoals], (error, results, fields) => {
                         if (error) {
                             console.log(error)
@@ -143,8 +150,31 @@ const registerUser = async (req, res) => {
                             return res.json({ message: "Error" })
                         }
 
-                        res.json(results);
-                    })
+                        addJournalEntry(userId)
+                        addCalendarEntrySingle(userId);
+
+                    });
+
+                    // Check if there's an unfilled field
+                    if (!weight || !height || !targetWeight) {
+                        res.status(400);
+                        res.json({ message: "Bad request" });
+                    } else {
+                        try {
+                            connection.query("insert into WeightHeightJournal(userId, weightJournalDate, weight, height, targetWeight) values (?, ?, ?, ?, ?) on duplicate key update weight=?, height=?, targetWeight=?", [results.insertId, moment().tz('Asia/Manila').format('YYYY-MM-DD'), weight, height, targetWeight, weight, height, targetWeight], (err, results, fields) => {
+                                if (err) {
+                                    res.status(500);
+                                    return res.json({ message: "Error" })
+                                }
+
+                                res.json(results);
+
+                            })
+                        } catch (error) {
+                            res.status(500);
+                            res.json({ message: "Internal server error" });
+                        }
+                    }
                 })
             });
 
@@ -214,7 +244,7 @@ const getCalorieBudget = (req, res) => {
 
 // Update weight and height for the logged in user
 const updateWeightAndHeight = (req, res) => {
-
+    console.log(req.body)
     const { weight, height, targetWeight, userId } = req.body;
 
     // Check if there's an unfilled field
@@ -223,7 +253,7 @@ const updateWeightAndHeight = (req, res) => {
         res.json({ message: "Bad request" });
     } else {
         try {
-            connection.query('UPDATE Users SET weight=?, height=?, targetWeight=? WHERE userId=?', [weight, height, targetWeight, userId], (err, results, fields) => {
+            connection.query("insert into WeightHeightJournal(userId, weightJournalDate, weight, height, targetWeight) values (?, ?, ?, ?, ?) on duplicate key update weight=?, height=?, targetWeight=?", [userId, moment().tz('Asia/Manila').format('YYYY-MM-DD'), weight, height, targetWeight, weight, height, targetWeight], (err, results, fields) => {
                 if (err) {
                     res.status(500);
                     return res.json({ message: "Error" })
@@ -240,6 +270,127 @@ const updateWeightAndHeight = (req, res) => {
 
 };
 
+// Update weight with weight yesterday
+const updateWeightFromYesterday = (req, res) => {
+
+
+    try {
+        connection.query('SELECT * FROM Users', (err, results, fields) => {
+            if (err) {
+                // Add error handling
+            }
+
+
+            results.forEach((user) => {
+                console.log(user.userId)
+                //console.log(user.userId)
+                user.userId
+
+
+
+
+
+
+
+                try {
+                    connection.query(`insert into WeightHeightJournal (userId, weightJournalDate, weight, height, targetWeight) 
+                        select userId, ?, weight, height, targetWeight
+                        from WeightHeightJournal
+                        where weightJournalDate = ? and userId=?`, [moment().tz('Asia/Manila').format('YYYY-MM-DD'), moment().subtract(1, 'days').tz('Asia/Manila').format('YYYY-MM-DD'), user.userId], (err, results, fields) => {
+                        if (err) {
+                            return console.log(err)
+                        }
+
+                        console.log(results)
+
+                    })
+                } catch (error) {
+                    console.log(error)
+
+                }
+
+
+            });
+        })
+
+
+    } catch {
+        // Insert error handling
+        res.status(500);
+        res.json({ message: "Internal server error" })
+    }
+
+
+};
+
+// Update weight and height for the logged in user
+const deleteAccount = (req, res) => {
+    const userId = req.body.userId;
+    try {
+        connection.query('DELETE FROM Users WHERE userId=?', [userId], (err, results, fields) => {
+            if (err) {
+                console.log(err)
+                res.status(500);
+                return res.json({ message: "Error" })
+            }
+
+            res.json({ message: "Account deleted" });
+
+        })
+    } catch (error) {
+        res.status(500);
+        res.json({ message: "Internal server error" });
+        console.log(error)
+    }
+};
+
+const getProgressReport = (req, res) => {
+    const userId = req.body.userId;
+    try {
+        connection.query(`SELECT sd.weight as currentWeight, sd.targetWeight, Users.levelId, Levels.levelBoundary, UserGoals.goalId, Users.progressPoints, max(WeightHeightJournal.weight) as maxWeight, min(WeightHeightJournal.weight) as minWeight, (gainOrLoss.numeratorWeight - gainOrLoss.denominatorWeight) as weightLoss FROM
+        (select * from WeightHeightJournal where userId=? order by weightJournalDate desc limit 1 ) sd
+        JOIN Users ON sd.userId = Users.userId
+        JOIN Levels ON Users.levelId = Levels.levelId
+        JOIN UserGoals ON sd.userId = UserGoals.userId
+        JOIN WeightHeightJournal on sd.userId = WeightHeightJournal.userId
+        JOIN (
+            select userId, max(weight) as denominatorWeight, min(weight) as numeratorWeight
+            from WeightHeightJournal
+            where userId=? AND weightJournalDate > ? AND weightJournalDate < ?
+        ) gainOrLoss ON sd.userId = gainOrLoss.userId
+        WHERE (goalId=4 OR goalId=5 OR goalId=6);
+        
+        SELECT weightJournalDate, weight from WeightHeightJournal
+        where weightJournalDate > ? AND weightJournalDate < ?
+        and userId=?;
+        
+        
+        
+        SELECT sum(caloriesPerUnit * servingQty) as calories, foodJournalDate from FoodJournal
+        where userId=?
+        group by foodJournalDate;
+        
+        select (weight / power((height / 100), 2)) as bmi from WeightHeightJournal where userId=?
+        and weightJournalDate > ? AND weightJournalDate < ?`, [userId, userId, moment().subtract(8, 'days').tz('Asia/Manila').format('YYYY-MM-DD'), moment().add(1, 'days').tz('Asia/Manila').format('YYYY-MM-DD')
+            , moment().subtract(8, 'days').tz('Asia/Manila').format('YYYY-MM-DD'), moment().add(1, 'days').tz('Asia/Manila').format('YYYY-MM-DD'), userId, userId, userId,
+            moment().subtract(8, 'days').tz('Asia/Manila').format('YYYY-MM-DD'), moment().add(1, 'days').tz('Asia/Manila').format('YYYY-MM-DD')
+
+        ], (err, results, fields) => {
+            if (err) {
+                console.log(err)
+                res.status(500);
+                return res.json({ message: "Error" })
+            }
+            res.json(results);
+
+        })
+    } catch (error) {
+        res.status(500);
+        res.json({ message: "Internal server error" });
+        console.log(error)
+    }
+}
+
 const loginUser = (req, res) => {
     // Authenticate user
     authenticate(req.body, res)
@@ -247,5 +398,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal
+    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal, deleteAccount, getProgressReport, updateWeightFromYesterday
 }

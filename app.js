@@ -1,7 +1,7 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-
+const fetch = require('node-fetch')
 const mysql = require('mysql');
 const { connection } = require('./dbConfig');
 const usersRouter = require('./routes/users.route');
@@ -14,6 +14,8 @@ const { admin } = require('./firebase');
 const { startMessageService } = require('./messaging');
 const rateLimit = require('express-rate-limit');
 const { changeMissions } = require('./setMissions');
+const { addHabitEntries } = require('./setHabitEntries');
+const { addJournalEntries } = require('./controllers/missions.controller');
 
 
 // Initialize express
@@ -51,10 +53,21 @@ admin.messaging().subscribeToTopic(registrationToken, topic)
 // Start sending messages if subscriptions want to send messages
 startMessageService();
 changeMissions();
+addHabitEntries();
+setInterval(() => {
+    fetch("https://projecthealthapp.herokuapp.com/api/");
+    console.log('Keep awake');
+}, 300000);
 
+connection.on('acquire', (connection) => {
+    console.log('Connection acquired', connection.threadId)
+})
 
+connection.on('release', function (connection) {
+    console.log('Connection %d released', connection.threadId);
+});
 
-
+addJournalEntries();
 
 
 
