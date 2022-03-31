@@ -344,6 +344,28 @@ const deleteAccount = (req, res) => {
     }
 };
 
+// Update progress points
+const updateProgress = (req, res) => {
+    const userId = req.body.userId;
+    console.log(req.body)
+    try {
+        connection.query('UPDATE Users SET progressPoints=?, levelId=? WHERE userId=?', [req.body.progressPoints, req.body.levelId, userId], (err, results, fields) => {
+            if (err) {
+                console.log(err)
+                res.status(500);
+                return res.json({ message: "Error" })
+            }
+            console.log(results)
+            res.json({ message: "Updated successfully" });
+
+        })
+    } catch (error) {
+        res.status(500);
+        res.json({ message: "Internal server error" });
+        console.log(error)
+    }
+};
+
 const getProgressReport = (req, res) => {
     const userId = req.body.userId;
     try {
@@ -398,5 +420,5 @@ const loginUser = (req, res) => {
 }
 
 module.exports = {
-    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal, deleteAccount, getProgressReport, updateWeightFromYesterday
+    getUsers, registerUser, loginUser, getCalorieBudget, updateWeightAndHeight, getUsersLocal, deleteAccount, getProgressReport, updateWeightFromYesterday, updateProgress
 }
