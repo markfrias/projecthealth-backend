@@ -15,6 +15,7 @@ const { startMessageService } = require('./messaging');
 const rateLimit = require('express-rate-limit');
 const { changeMissions } = require('./setMissions');
 const { addHabitEntries } = require('./setHabitEntries');
+const { addJournalEntries } = require('./controllers/missions.controller');
 
 
 // Initialize express
@@ -58,7 +59,15 @@ setInterval(() => {
     console.log('Keep awake');
 }, 300000);
 
+connection.on('acquire', (connection) => {
+    console.log('Connection acquired', connection.threadId)
+})
 
+connection.on('release', function (connection) {
+    console.log('Connection %d released', connection.threadId);
+});
+
+addJournalEntries();
 
 
 
