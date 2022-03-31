@@ -67,7 +67,6 @@ connection.on('release', function (connection) {
     console.log('Connection %d released', connection.threadId);
 });
 
-addJournalEntries();
 
 
 
