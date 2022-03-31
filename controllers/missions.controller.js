@@ -5,7 +5,105 @@ const { connection } = require('../dbConfig');
 // Fetch user specific habits
 const addJournalEntries = (req, res) => {
     try {
-        connection.query('SELECT * FROM Users', (err, results, fields) => {
+
+        // Fetch all missions and save in a variable
+        connection.query(`select missionId from Missions;
+        select userId, levelId from Users`, (error, results, fields) => {
+            const newItem = results[1].map((value) => {
+                let listToSend = []
+                // Map based on three missions
+                for (let i = 0; i <= 2; i++) {
+                    let isSame = false;
+                    const generateItems = () => {
+                        const itemToInsert = results[0][Math.floor(Math.random() * (results[0].length - 0) + 0)];
+                        listToSend.forEach((item) => {
+                            if (itemToInsert.missionId === item.missionId) {
+                                return isSame = true;
+                            }
+
+                        });
+                        if (isSame) {
+                            isSame = false;
+                            generateItems();
+                        } else {
+                            listToSend.push(itemToInsert.missionId);
+                        }
+
+                    }
+
+                    generateItems();
+
+                }
+
+                //console.log(listToSend)
+
+                const valuesPerUser = listToSend.map((mission) => {
+                    return [value.userId, mission, 0, moment().tz('Asia/Manila').format('YYYY-MM-DD')]
+                })
+
+                //console.log(valuesPerUser)
+
+                // Return three missions array as the user's return value
+                return valuesPerUser;
+
+
+                /*
+                const listToSend = [];
+                for (let i = 0; i <= 2; i++) {
+                    let isSame = false;
+                    const generateItems = () => {
+                        const itemToInsert = results[0][Math.floor(Math.random() * (results[0].length - 0) + 0)];
+                        listToSend.forEach((item) => {
+                            if (itemToInsert.missionId === item.missionId) {
+                                return isSame = true;
+                            }
+
+                        });
+                        if (isSame) {
+                            isSame = false;
+                            generateItems();
+                        } else {
+                            listToSend.push(itemToInsert.missionId);
+                        }
+
+                    }
+
+                    generateItems();
+
+                }
+                console.log(listToSend)
+                return [value.userId, listToSend]
+                */
+            })
+            //console.log(newItem);
+
+            let finalArray = [];
+            newItem.forEach((item) => {
+                item.forEach((innerItem) => {
+                    finalArray.push(innerItem)
+                })
+            })
+            //console.log(finalArray)
+
+            // Insert new entries to missions journal
+            connection.query('INSERT INTO MissionsCalendar(userId, missionId, missionAccomplished, missionEntryDate) VALUES ?', [finalArray], (error, results, fields) => {
+                if (error) {
+                    console.log(error);
+                    // Add error handling !!!
+                }
+                //console.log(userId)
+                //console.log(results)
+
+            })
+
+        })
+
+        // Batch insert with randomized missions
+
+
+
+
+        /*connection.query('SELECT * FROM Users', (err, results, fields) => {
             if (err) {
                 // Add error handling
             }
@@ -74,7 +172,7 @@ const addJournalEntries = (req, res) => {
                     })
                 });
             });
-        })
+        })*/
 
 
     } catch {
@@ -167,6 +265,7 @@ const getUserMissions = (req, res) => {
 
             // Response when query is successful
             res.json(results);
+            console.log(results, userId, moment().tz("Asia/Manila").format('YYYY-MM-DD'))
         })
     } catch (error) {
         console.error(error);
