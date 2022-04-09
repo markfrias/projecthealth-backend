@@ -19,7 +19,7 @@
     "firebase-admin": "^10.0.2",
     "jsonwebtoken": "^8.5.1",
     "jwtoken": "0.0.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "moment-timezone": "^0.5.34",
     "mysql": "^2.18.1",
     "node-cron": "^3.0.0",
