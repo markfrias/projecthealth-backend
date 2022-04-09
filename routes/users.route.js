@@ -13,5 +13,6 @@ router.get('/calorieBudget', authorize, userControllers.getCalorieBudget);
 router.patch('/modify-weight', authorize, userControllers.updateWeightAndHeight);
 router.delete('/delete', authorize, userControllers.deleteAccount);
 router.get('/progress-report', authorize, userControllers.getProgressReport);
+router.patch('/progress/update', authorize, userControllers.updateProgress);
 
 module.exports = router;
