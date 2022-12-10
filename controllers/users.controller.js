@@ -369,7 +369,7 @@ const updateProgress = (req, res) => {
 const getProgressReport = (req, res) => {
     const userId = req.body.userId;
     try {
-        connection.query(`SELECT sd.weight as currentWeight, sd.targetWeight, Users.levelId, Levels.levelBoundary, UserGoals.goalId, Users.progressPoints, max(WeightHeightJournal.weight) as maxWeight, min(WeightHeightJournal.weight) as minWeight, (gainOrLoss.numeratorWeight - gainOrLoss.denominatorWeight) as weightLoss FROM
+        connection.query(`SELECT sd.height as height, sd.weight as currentWeight, sd.targetWeight, Users.levelId, Levels.levelBoundary, UserGoals.goalId, Users.progressPoints, max(WeightHeightJournal.weight) as maxWeight, min(WeightHeightJournal.weight) as minWeight, (gainOrLoss.numeratorWeight - gainOrLoss.denominatorWeight) as weightLoss FROM
         (select * from WeightHeightJournal where userId=? order by weightJournalDate desc limit 1 ) sd
         JOIN Users ON sd.userId = Users.userId
         JOIN Levels ON Users.levelId = Levels.levelId
