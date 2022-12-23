@@ -17,7 +17,7 @@
     "express": "^4.17.2",
     "express-rate-limit": "^6.2.1",
     "firebase-admin": "^10.0.2",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "jwtoken": "0.0.0",
     "moment": "^2.29.1",
     "moment-timezone": "^0.5.34",
